@@ -27,20 +27,30 @@ jobs:
 
       - name: Start Prism mock servers
         run: |
-          nohup npm run mock:iot > prism-iot.log 2>&1 &
-          nohup npm run mock:vision > prism-vision.log 2>&1 &
+          nohup npm run mock:alerts > prism-alerts.log 2>&1 &
+          echo "Mock server started. Waiting for startup..."
+          sleep 2
 
       - name: Wait for mock servers
-        run: npx wait-on http://localhost:4010/health http://localhost:4011/health --timeout 30000
+        run: npx wait-on http://localhost:4010/health --timeout 60000
+
+      - name: Verify mock server health
+        run: |
+          echo "Checking mock server health..."
+          curl -v http://localhost:4010/health || true
 
       - name: Run Newman contract tests
-        run: npm run test:mock
+        run: npm run test:alerts
 
       - name: Show Prism logs on failure
         if: failure()
         run: |
-          cat prism-iot.log || true
-          cat prism-vision.log || true
+          echo "=== Prism Alerts Log ==="
+          cat prism-alerts.log || true
+          echo "=== Checking running processes ==="
+          ps aux | grep prism || true
+          echo "=== Network connectivity ==="
+          netstat -tuln || ss -tuln || true
 
       - name: Upload Newman reports
         if: always()

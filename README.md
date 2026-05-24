@@ -404,6 +404,51 @@ Không dùng latency của mock server để kết luận service thật nhanh h
 
 ---
 
+## 9.5 Alert Notification API (Lab 03 Focus)
+
+**OpenAPI Contract:** `contracts/openapi.yaml` (v3.1.0)
+
+Đây là contract chính của Lab 03, định nghĩa các endpoints cho hệ thống Alert Notification:
+
+### Endpoints được kiểm thử
+
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| GET | `/health` | Kiểm tra trạng thái service |
+| GET | `/api/alerts` | Lấy danh sách cảnh báo |
+| GET | `/api/alerts/{alertId}` | Lấy chi tiết cảnh báo |
+| PATCH | `/api/alerts/{alertId}/acknowledge` | Xác nhận đã đọc cảnh báo |
+| PATCH | `/api/alerts/{alertId}/resolve` | Đánh dấu cảnh báo đã giải quyết |
+| POST | `/events` | Gửi sự kiện (tự động sinh cảnh báo) |
+| POST | `/api/notifications` | Gửi thông báo |
+| GET | `/api/notifications` | Lấy danh sách thông báo |
+
+### Chạy Mock Server cho Alert Notification API
+
+```bash
+npm run mock:alerts
+```
+
+Mock server chạy tại: `http://localhost:4010`
+
+### Chạy Newman tests cho Alert Notification API
+
+```bash
+npm run test:alerts
+```
+
+Report sẽ được tạo:
+- `reports/newman-report-alerts.xml` (JUnit format cho CI)
+- `reports/newman-report-alerts.html` (HTML report chi tiết)
+
+### Collection & Environment
+
+- **Collection:** `postman/collections/FIT4110_lab03_alert_notification.postman_collection.json`
+- **Environment mock:** `postman/environments/FIT4110_lab03_mock.postman_environment.json`
+- **Environment local:** `postman/environments/FIT4110_lab03_local.postman_environment.json`
+
+---
+
 ## 10. Quy trình làm bài
 
 Thực hiện theo thứ tự sau:
