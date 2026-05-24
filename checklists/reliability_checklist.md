@@ -46,3 +46,40 @@
 - [ ] Newman report XML/HTML.
 - [ ] Test-case matrix đã điền.
 - [ ] Biên bản handshake đã điền.
+# Reliability Checklist
+
+## Health Check
+- [x] `/health` endpoint implemented
+- [x] Service availability validation supported
+
+## Error Handling
+- [x] 400 validation errors documented
+- [x] 401 unauthorized errors documented
+- [x] 404 resource not found documented
+- [x] 500 internal server error documented
+
+## Retry Strategy
+- [x] Clients may retry GET requests safely
+- [x] PATCH requests designed to avoid duplicate side effects
+
+## Timeout Handling
+- [x] API gateway timeout expected under 30 seconds
+- [x] Consumer timeout strategy documented
+
+## Observability
+- [x] Request IDs supported
+- [x] Health endpoint available
+- [x] Error responses standardized
+
+## Security
+- [x] Bearer authentication configured
+- [x] Sensitive endpoints protected
+
+## Pagination
+- [x] Cursor pagination supported
+- [x] Limit parameter validated
+
+## Contract Validation
+- [x] OpenAPI contract validated with Spectral
+- [x] Mock server validated using Prism
+- [x] Postman contract tests executed

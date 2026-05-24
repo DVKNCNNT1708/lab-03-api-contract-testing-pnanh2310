@@ -3,7 +3,7 @@
 ## Thông tin chung
 
 - Lab: FIT4110 Lab 03
-- Ngày:
+- Ngày: 23/05/2026
 - Provider team:
 - Consumer team:
 - Provider service:

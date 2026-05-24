@@ -1,0 +1,415 @@
+{
+  "info": {
+    "_postman_id": "fit4110-lab03-alert-notification",
+    "name": "FIT4110 Lab03 - Alert Notification Contract Tests",
+    "description": "Postman Collection cho Buổi 3: Alert Notification API contract testing với mock server, tests cho health, alerts, events, và notifications endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const prefix = pm.environment.get('tracePrefix') || 'fit4110-lab03';",
+          "pm.variables.set('traceId', prefix + '-' + Date.now());",
+          "pm.request.headers.upsert({ key: 'X-Trace-Id', value: pm.variables.get('traceId') });"
+        ]
+      }
+    }
+  ],
+  "variable": [],
+  "item": [
+    {
+      "name": "00_Health",
+      "item": [
+        {
+          "name": "GET /health - service is alive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has service status\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    pm.expect(jsonData).to.have.property(\"status\");",
+                  "    pm.expect(jsonData.status).to.eql(\"ok\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01_Alerts",
+      "item": [
+        {
+          "name": "GET /api/alerts - list all alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains items array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    pm.expect(jsonData).to.have.property(\"items\");",
+                  "    pm.expect(jsonData.items).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/alerts/{alertId}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts/586877f9-bf0d-d139-7540-211a822bc3c9",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts",
+                "586877f9-bf0d-d139-7540-211a822bc3c9"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Alert has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    pm.expect(jsonData).to.have.property(\"alertId\");",
+                  "    pm.expect(jsonData).to.have.property(\"severity\");",
+                  "    pm.expect(jsonData).to.have.property(\"status\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/alerts/{alertId}/acknowledge",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts/9572f2e6-e063-9042-81b0-d521a8e43106/acknowledge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts",
+                "9572f2e6-e063-9042-81b0-d521a8e43106",
+                "acknowledge"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/alerts/{alertId}/resolve",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolutionNote\": \"Issue resolved by admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts/28614451-481f-db50-afaf-029debdab365/resolve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alerts",
+                "28614451-481f-db50-afaf-029debdab365",
+                "resolve"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02_Events",
+      "item": [
+        {
+          "name": "POST /events - create sensor reading event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"SENSOR_READING\",\n  \"eventId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"deviceId\": \"sensor-01\",\n  \"metric\": \"temperature\",\n  \"value\": 70,\n  \"unit\": \"C\",\n  \"timestamp\": \"2026-05-24T20:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has generatedAlertId\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    pm.expect(jsonData).to.have.property(\"generatedAlertId\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03_Notifications",
+      "item": [
+        {
+          "name": "POST /api/notifications - send alert notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"channels\": [\"email\"],\n  \"receivers\": [\n    {\n      \"userId\": \"u001\",\n      \"email\": \"admin@campus.local\"\n    }\n  ],\n  \"priority\": \"HIGH\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Notification response is valid\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    pm.expect(jsonData).to.have.property(\"notificationId\");",
+                  "    pm.expect(jsonData).to.have.property(\"status\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/notifications - list notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains notifications array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    pm.expect(jsonData).to.have.property(\"items\");",
+                  "    pm.expect(jsonData.items).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
