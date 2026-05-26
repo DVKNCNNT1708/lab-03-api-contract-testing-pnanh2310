@@ -2,9 +2,9 @@ name: Newman Contract Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   newman:
@@ -25,69 +25,103 @@ jobs:
       - name: Lint OpenAPI contracts
         run: npm run lint:contracts
 
-      - name: Start Prism mock server
+      - name: Start Prism mock servers
         run: |
-          # Start Prism mock server in background
-          npm run mock:alerts > prism-alerts.log 2>&1 &
-          PRISM_PID=$!
-          echo "Prism PID: $PRISM_PID"
-          echo "PRISM_PID=$PRISM_PID" >> $GITHUB_ENV
-          
-          # Give it time to start
-          sleep 3
-          
-          # Check if process is still running
-          if ! kill -0 $PRISM_PID 2>/dev/null; then
-            echo "ERROR: Prism process died immediately!"
-            cat prism-alerts.log
-            exit 1
-          fi
-          echo "Prism started successfully"
+          npm run mock:iot > prism-iot.log 2>&1 &
+          IOT_PID=$!
 
-      - name: Wait for mock server with retry
+          npm run mock:vision > prism-vision.log 2>&1 &
+          VISION_PID=$!
+
+          echo "IOT_PID=$IOT_PID" >> $GITHUB_ENV
+          echo "VISION_PID=$VISION_PID" >> $GITHUB_ENV
+
+          sleep 10
+
+      - name: Check mock server health
         run: |
-          MAX_RETRIES=10
-          RETRY_INTERVAL=3
-          
-          for ((i=1; i<=MAX_RETRIES; i++)); do
-            echo "Attempt $i/$MAX_RETRIES: Checking mock server health..."
-            if curl -f http://localhost:4010/health 2>/dev/null | grep -q '"status":"ok"'; then
-              echo "✓ Mock server is ready!"
-              exit 0
-            fi
-            
-            if [ $i -lt $MAX_RETRIES ]; then
-              echo "Not ready yet, waiting ${RETRY_INTERVAL}s..."
-              sleep $RETRY_INTERVAL
-            fi
-          done
-          
-          echo "ERROR: Mock server did not become ready after ${MAX_RETRIES} attempts"
-          echo "=== Prism Log ==="
-          cat prism-alerts.log || true
-          echo "=== Process Check ==="
-          ps aux | grep -E "prism|node" | grep -v grep || true
-          echo "=== Port Check ==="
-          ss -tuln | grep 4010 || echo "Port 4010 not listening"
-          exit 1
+          curl -f http://localhost:4010/health || exit 1
+          curl -f http://localhost:4011/health || exit 1
 
       - name: Run Newman contract tests
-        run: npm run test:alerts
+        run: npm run test:mock
 
-      - name: Show Prism logs on failure
+      - name: Generate HTML report
+        run: npm run test:html
+
+      - name: Show logs on failure
         if: failure()
         run: |
-          echo "=== Prism Server Logs ==="
-          tail -100 prism-alerts.log || true
-          echo ""
-          echo "=== Running Processes ==="
-          ps aux | grep -E "prism|node|npm" | grep -v grep || true
-          echo ""
-          echo "=== Port Listeners ==="
-          ss -tuln || netstat -tuln || true
-          echo ""
-          echo "=== Network Connections ==="
-          ss -tan || netstat -tan || true
+          echo "=== IOT LOG ==="
+          cat prism-iot.log || true
+
+          echo "=== VISION LOG ==="
+          cat prism-vision.log || true
+
+      - name: Upload Newman reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-reports
+          path: reports/name: Newman Contract Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint OpenAPI contracts
+        run: npm run lint:contracts
+
+      - name: Start Prism mock servers
+        run: |
+          npm run mock:iot > prism-iot.log 2>&1 &
+          IOT_PID=$!
+
+          npm run mock:vision > prism-vision.log 2>&1 &
+          VISION_PID=$!
+
+          echo "IOT_PID=$IOT_PID" >> $GITHUB_ENV
+          echo "VISION_PID=$VISION_PID" >> $GITHUB_ENV
+
+          sleep 10
+
+      - name: Check mock server health
+        run: |
+          curl -f http://localhost:4010/health || exit 1
+          curl -f http://localhost:4011/health || exit 1
+
+      - name: Run Newman contract tests
+        run: npm run test:mock
+
+      - name: Generate HTML report
+        run: npm run test:html
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "=== IOT LOG ==="
+          cat prism-iot.log || true
+
+          echo "=== VISION LOG ==="
+          cat prism-vision.log || true
 
       - name: Upload Newman reports
         if: always()
