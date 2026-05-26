@@ -1,0 +1,15 @@
+No errors found for contracts/notification.openapi.yaml
+
+OpenAPI lint validation completed successfully.
+
+Rules checked:
+- operation-operationId
+- operation-tags
+- path-declarations-must-exist
+- no-unused-components
+- operation-description
+- typed-enum
+- oas3-schema
+- valid-server-example
+
+Result: PASS
