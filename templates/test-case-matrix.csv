@@ -4,15 +4,3 @@ TC02,Functional,/readings,POST,Create reading happy path,mock-data/sensor-readin
 TC03,Negative,/readings,POST,Missing device_id,mock-data/sensor-reading-invalid-missing-device.json,400,Problem Details,negative,,
 TC04,Auth,/readings,POST,Missing token,mock-data/sensor-reading-valid.json,401,Problem Details,auth,,
 TC05,Boundary,/readings,POST,High temperature boundary,mock-data/sensor-reading-boundary.json,201/400,documented behavior,boundary,,
-Test ID,Endpoint,Method,Scenario,Expected Result
-TC01,/health,GET,Health check,200 OK
-TC02,/api/alerts,GET,Get alerts list,200 OK
-TC03,/api/alerts/{alertId},GET,Valid alert ID,200 OK
-TC04,/api/alerts/{alertId},GET,Invalid alert ID,404 Not Found
-TC05,/api/alerts/{alertId}/acknowledge,PATCH,Acknowledge alert,204 No Content
-TC06,/api/alerts/{alertId}/resolve,PATCH,Resolve alert,204 No Content
-TC07,/events,POST,Submit sensor event,201 Created
-TC08,/events,POST,Invalid payload,400 Bad Request
-TC09,/api/notifications,POST,Create notification,201 Created
-TC10,/api/notifications,GET,List notifications,200 OK
-TC11,/api/notifications,POST,Missing auth token,401 Unauthorized
